@@ -125,6 +125,7 @@
                    `(,(main-aux cond))
                    ]
                   [`(,cond ,es ...)
+                   ;(pretty-print cond)
                    `(,(main-aux cond) ,(main-aux `(begin ,@es)))
                    ])) cond-clause))
        `(cond ,@cond-clause+)
@@ -167,17 +168,6 @@
        ]
       [(? symbol? x)
        x
-       ]
-      [`(/ ,arg)
-       `(if (= ,(main-aux arg) '0)
-            (halt '"run-time error: division by zero")
-            `(/ ,(main-aux arg)))
-       ]
-      [`(/ . ,args)
-       (define args+ (map (lambda (x) (main-aux x)) args))
-       `(if (= (* ,@(cdr args+)) '0)
-            (halt '"run-time error: division by zero")
-            (/ ,@args+))
        ]
       [(? prim? op)
        op
@@ -266,11 +256,20 @@
        ]
       ))
 
-  (define (guard-wrap e)
-    (let ([msg (gensym 'msg)])
-      `(guard (,msg [else ,msg]) ,e)) e)
+   #;(define (pat-aux pat)
+    (match pat
+      [`(? ,e ,pat)
+       `(? ,(top-level e) ,(pat-aux pat))
+       ]
+      [`(cons ,pat0 ,pat1)
+       `(cons ,(pat-aux pat0) ,(pat-aux pat1))
+       ]
+      [else
+       (top-level pat)
+       ]
+    ))
  
-  (main-aux e)
+(main-aux e)
 )
 
 

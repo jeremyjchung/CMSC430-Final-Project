@@ -26,7 +26,8 @@
          proc-exp?
          test-closure-convert
          test-proc->llvm
-         test-compile-all)
+         test-compile-all
+         test-zero-division)
 
 
 (define project-path (current-directory))
@@ -668,7 +669,18 @@
   (if (equal? val val0)
       #t
       (begin
-        (display (format "Test-compile-all two different values (~a and ~a) before and after closure conversion.\n"
+        (display (format "Test-compile-all two different values (~a and ~a) before and after compilation.\n"
+                             val val0))
+        #f)))
+
+(define (test-zero-division compile-all prog)
+  (define val "run-time error: division by zero")
+  (define compiled (compile-all prog))
+  (define val0 (eval-llvm compiled))
+  (if (equal? val val0)
+      #t
+      (begin
+        (display (format "Test-errors two different values (~a and ~a) before and after compilation.\n"
                              val val0))
         #f)))
 

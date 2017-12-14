@@ -8,7 +8,12 @@
 
 (define ((make-test path) exp ext)
         (lambda ()
-            (define t0 (test-proc->llvm compile-all exp))
+            (define t0 (test-compile-all compile-all exp))
+            t0))
+
+(define ((make-test-errors path) exp ext)
+        (lambda ()
+            (define t0 (test-errors compile-all exp))
             t0))
 
 (define (tests-list dir)
@@ -31,10 +36,17 @@
       (with-input-from-file p read-begin #:mode 'text)
       (last (string-split (path->string p) ".")))))
 
+(define ((path->test-zero type) p)
+  (define filename (last (string-split (path->string p) "/")))
+  `(,(string-append (last (string-split (string-join (drop-right (string-split (path->string p) ".") 1) ".") "/")))
+    ,type
+    ,((make-test-zero p)
+      (with-input-from-file p read-begin #:mode 'text)
+      (last (string-split (path->string p) ".")))))
+
 (define tests
   `(,@(map (path->test 'public) (tests-list "public"))
-    ,@(map (path->test 'release) (tests-list "release"))
-    ,@(map (path->test 'secret) (tests-list "secret"))))
+    ,@(map (path->test-zero 'zero-division) (tests-list "zero-division"))))
 
 (define (run-test/internal is-repl . args)
   ;; Run all tests, a specific test, or print the available tests
