@@ -6,7 +6,7 @@ This final project is a compilation of the previous projects we did this semeste
 
 ## Part I
 
-These are the following intermediate representations (IRs) in order ...
+### Intermediate Representations
 
 ##### IR-0: (top-level prog)
   desugar define statements into letrec\*, quote datums, add implicit begins, and desugar quasiquote/unquote
@@ -24,5 +24,43 @@ These are the following intermediate representations (IRs) in order ...
 ##### IR-3: (proc->llvm (closure-convert IR-3))
   remove lambda abstractions and replace them with a closure object, lift atomic expressions (other than variable references) to be let bound <br/>
   transform into LLVM code that when combined with the header.ll file can be compiled with Clang 
+  
+### Supported Primitive Operations
+
+###### (null? v) -> boolean?
+Returns #t if v is the empty list, #f otherwise
+
+###### (car p) -> any/c (p: pair?)
+Returns the first element of the pair p
+
+###### (cdr p) -> any/c (p: pair?)
+Returns the second element of the pair p
+
+###### (cons a d) -> pair? (a: any/c, d: any/c)
+Returns a pair where a is the first element and d is the second element
+
+###### (number? v) -> boolean? (v: any/c)
+Returns #t if v is a number, #f otherwise
+
+###### (+ v ...+) -> number? (v: variable (with numeric value) | subexpresssion (with numeric value) | (? number? n))
+Returns the sum of one or more numbers
+
+###### (- v ...+) -> number? (v: variable (with numeric value) | subexpresssion (with numeric value) | (? number? n))
+If v represents (v0, v1, v2, ..., vn), returns (v0 - v1 - v2 - ... - vn)
+
+###### (* v ...+) -> number? (v: variable (with numeric value) | subexpresssion (with numeric value) | (? number? n))
+Returns the product of one or more numbers
+
+###### (= v v) -> boolean? (v: variable (with numeric value) | subexpresssion (with numeric value) | (? number? n))
+Returns #t if two numeric values are equal, #f otherwise
+
+###### (<= v1 v2) -> boolean? (v1/v2: variable (with numeric value) | subexpresssion (with numeric value) | (? number? n))
+Returns #t if v1 is less than or equal to v2, #f otherwise
+
+###### (> v1 v2) -> boolean? (v1/v2: variable (with numeric value) | subexpresssion (with numeric value) | (? number? n))
+Returns #t if v1 is greater than v2, #f otherwise
+
+###### (not e) -> boolean? (e: variable (with boolean value) | subexpression (with boolean value) | (? boolean? b))
+Returns #t if e evaluates to #f, #f otherwise
 
 ## Part II
