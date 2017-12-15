@@ -27,40 +27,76 @@ This final project is a compilation of the previous projects we did this semeste
   
 ### Supported Primitive Operations
 
-###### (null? v) -> boolean?
+```racket
+(null? v) -> boolean? 
+(v: any/c)
+```
 Returns #t if v is the empty list, #f otherwise
 
-###### (car p) -> any/c (p: pair?)
+```racket 
+(car p) -> any/c 
+(p: pair?) 
+```
 Returns the first element of the pair p
 
-###### (cdr p) -> any/c (p: pair?)
+```racket 
+(cdr p) -> any/c 
+(p: pair?) 
+```
 Returns the second element of the pair p
 
-###### (cons a d) -> pair? (a: any/c, d: any/c)
+```racket 
+(cons a d) -> pair? 
+(a: any/c, d: any/c) 
+```
 Returns a pair where a is the first element and d is the second element
 
-###### (number? v) -> boolean? (v: any/c)
+```racket
+(number? v) -> boolean? 
+(v: any/c)
+```
 Returns #t if v is a number, #f otherwise
 
-###### (+ v ...+) -> number? (v: variable (with numeric value) | subexpresssion (with numeric value) | (? number? n))
+```racket
+(+ v ...+) -> number? 
+(v: variable (with numeric value) | subexpresssion (with numeric value) | (? number? n))
+```
 Returns the sum of one or more numbers
 
-###### (- v ...+) -> number? (v: variable (with numeric value) | subexpresssion (with numeric value) | (? number? n))
+```racket
+(- v ...+) -> number? 
+(v: variable (with numeric value) | subexpresssion (with numeric value) | (? number? n))
+```
 If v represents (v0, v1, v2, ..., vn), returns (v0 - v1 - v2 - ... - vn)
 
-###### (* v ...+) -> number? (v: variable (with numeric value) | subexpresssion (with numeric value) | (? number? n))
+```racket
+(* v ...+) -> number? 
+(v: variable (with numeric value) | subexpresssion (with numeric value) | (? number? n))
+```
 Returns the product of one or more numbers
 
-###### (= v v) -> boolean? (v: variable (with numeric value) | subexpresssion (with numeric value) | (? number? n))
+```racket
+(= v v) -> boolean? 
+(v: variable (with numeric value) | subexpresssion (with numeric value) | (? number? n))
+```
 Returns #t if two numeric values are equal, #f otherwise
 
-###### (<= v1 v2) -> boolean? (v1/v2: variable (with numeric value) | subexpresssion (with numeric value) | (? number? n))
+```racket
+(<= v1 v2) -> boolean? 
+(v1/v2: variable (with numeric value) | subexpresssion (with numeric value) | (? number? n))
+```
 Returns #t if v1 is less than or equal to v2, #f otherwise
 
-###### (> v1 v2) -> boolean? (v1/v2: variable (with numeric value) | subexpresssion (with numeric value) | (? number? n))
+```racket
+(> v1 v2) -> boolean? 
+(v1/v2: variable (with numeric value) | subexpresssion (with numeric value) | (? number? n))
+```
 Returns #t if v1 is greater than v2, #f otherwise
 
-###### (not e) -> boolean? (e: variable (with boolean value) | subexpression (with boolean value) | (? boolean? b))
+```racket
+(not e) -> boolean? 
+(e: variable (with boolean value) | subexpression (with boolean value) | (? boolean? b))
+```
 Returns #t if e evaluates to #f, #f otherwise
 
 ## Part II
