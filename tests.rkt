@@ -1,6 +1,6 @@
 #lang racket
 
-;; Testing apparatus for assignment 5
+;; Testing apparatus for Final Project
 
 (require "utils.rkt")
 (require "compiler.rkt")
@@ -11,9 +11,14 @@
             (define t0 (test-compile-all compile-all exp))
             t0))
 
-(define ((make-test-errors path) exp ext)
+(define ((make-test-zero path) exp ext)
         (lambda ()
-            (define t0 (test-errors compile-all exp))
+            (define t0 (test-zero-division compile-all exp))
+            t0))
+
+(define ((make-test-uninitialized-var path) exp ext)
+        (lambda ()
+            (define t0 (test-uninit-var compile-all exp))
             t0))
 
 (define (tests-list dir)
@@ -44,9 +49,18 @@
       (with-input-from-file p read-begin #:mode 'text)
       (last (string-split (path->string p) ".")))))
 
+(define ((path->test-uninit-vars type) p)
+  (define filename (last (string-split (path->string p) "/")))
+  `(,(string-append (last (string-split (string-join (drop-right (string-split (path->string p) ".") 1) ".") "/")))
+    ,type
+    ,((make-test-uninitialized-var p)
+      (with-input-from-file p read-begin #:mode 'text)
+      (last (string-split (path->string p) ".")))))
+
 (define tests
   `(,@(map (path->test 'public) (tests-list "public"))
-    ,@(map (path->test-zero 'zero-division) (tests-list "zero-division"))))
+    ,@(map (path->test-zero 'zero-division) (tests-list "zero-division"))
+    ,@(map (path->test-uninit-vars 'uninit-vars) (tests-list "uninit-vars"))))
 
 (define (run-test/internal is-repl . args)
   ;; Run all tests, a specific test, or print the available tests

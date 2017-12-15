@@ -27,7 +27,8 @@
          test-closure-convert
          test-proc->llvm
          test-compile-all
-         test-zero-division)
+         test-zero-division
+         test-uninit-var)
 
 
 (define project-path (current-directory))
@@ -675,6 +676,17 @@
 
 (define (test-zero-division compile-all prog)
   (define val "run-time error: division by zero")
+  (define compiled (compile-all prog))
+  (define val0 (eval-llvm compiled))
+  (if (equal? val val0)
+      #t
+      (begin
+        (display (format "Test-errors two different values (~a and ~a) before and after compilation.\n"
+                             val val0))
+        #f)))
+
+(define (test-uninit-var compile-all prog)
+  (define val "run-time error: use of uninitialized variable")
   (define compiled (compile-all prog))
   (define val0 (eval-llvm compiled))
   (if (equal? val val0)
