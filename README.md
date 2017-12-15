@@ -64,3 +64,24 @@ Returns #t if v1 is greater than v2, #f otherwise
 Returns #t if e evaluates to #f, #f otherwise
 
 ## Part II
+
+### Fixed Runtime Errors
+
+##### Division by Zero
+In top-level pass, insert an if statement into the output desugar for the following two cases
+
+```racket
+[`(/ ,arg)
+ `(if (= ,(main-aux arg) '0)
+    (halt '"run-time error: division by zero")
+    `(/ ,(main-aux arg)))
+]
+[`(/ . ,args)
+  (define args+ (map (lambda (x) (main-aux x)) args))
+  `(if (= (* ,@(cdr args+)) '0)
+    (halt '"run-time error: division by zero")
+    (/ ,@args+))
+]
+```
+
+
