@@ -119,5 +119,13 @@ In top-level pass, insert an if statement into the output desugar for the follow
     (/ ,@args+))
 ]
 ```
+##### Uninitialized Variables
+In the alphatize step of the cps pass, place a halt statement if a variable to be alphatized has never been referenced
 
+```racket
+[(? symbol? x)
+  (if (hash-has-key? env x)                
+    (hash-ref env x)
+    `(prim halt '"run-time error: use of uninitialized variable"))]
+```
 
