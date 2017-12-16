@@ -128,4 +128,15 @@ In the alphatize step of the cps pass, place a halt statement if a variable to b
     (hash-ref env x)
     `(prim halt '"run-time error: use of uninitialized variable"))]
 ```
+##### Applying Non-Function Values
+In the desugar pass, place a halt statement if the first argument in function position is not a procedure
 
+```racket
+[`(,fun . ,args)
+  (define args+ (map (lambda (x) (desugar-aux x)) args))
+  `(let ([f ,(desugar-aux fun)])
+    (if (prim procedure? f)
+      (f ,@args+)
+      (prim halt '"run-time error: application of a non-procedure")))
+]
+```
