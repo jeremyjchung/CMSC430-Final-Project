@@ -230,7 +230,11 @@
      ]
 
     [`(,fun . ,args)
-     (map (lambda (x) (desugar-aux x)) (cons fun args))
+     (define args+ (map (lambda (x) (desugar-aux x)) args))
+     `(let ([f ,(desugar-aux fun)])
+        (if (prim procedure? f)
+            (f ,@args+)
+            (prim halt '"run-time error: application of a non-procedure")))
      ]
     
 

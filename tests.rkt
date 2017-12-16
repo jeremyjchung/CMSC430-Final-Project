@@ -21,6 +21,11 @@
             (define t0 (test-uninit-var compile-all exp))
             t0))
 
+(define ((make-test-non-func-app path) exp ext)
+        (lambda ()
+            (define t0 (test-non-func-app compile-all exp))
+            t0))
+
 (define (tests-list dir)
   (map
    (lambda (path)
@@ -57,10 +62,19 @@
       (with-input-from-file p read-begin #:mode 'text)
       (last (string-split (path->string p) ".")))))
 
+(define ((path->test-non-func type) p)
+  (define filename (last (string-split (path->string p) "/")))
+  `(,(string-append (last (string-split (string-join (drop-right (string-split (path->string p) ".") 1) ".") "/")))
+    ,type
+    ,((make-test-non-func-app p)
+      (with-input-from-file p read-begin #:mode 'text)
+      (last (string-split (path->string p) ".")))))
+
 (define tests
   `(,@(map (path->test 'public) (tests-list "public"))
     ,@(map (path->test-zero 'zero-division) (tests-list "zero-division"))
-    ,@(map (path->test-uninit-vars 'uninit-vars) (tests-list "uninit-vars"))))
+    ,@(map (path->test-uninit-vars 'uninit-vars) (tests-list "uninit-vars"))
+    ,@(map (path->test-non-func 'non-func-app) (tests-list "non-func-app"))))
 
 (define (run-test/internal is-repl . args)
   ;; Run all tests, a specific test, or print the available tests

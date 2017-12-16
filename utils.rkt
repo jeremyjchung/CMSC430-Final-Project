@@ -28,7 +28,8 @@
          test-proc->llvm
          test-compile-all
          test-zero-division
-         test-uninit-var)
+         test-uninit-var
+         test-non-func-app)
 
 
 (define project-path (current-directory))
@@ -687,6 +688,17 @@
 
 (define (test-uninit-var compile-all prog)
   (define val "run-time error: use of uninitialized variable")
+  (define compiled (compile-all prog))
+  (define val0 (eval-llvm compiled))
+  (if (equal? val val0)
+      #t
+      (begin
+        (display (format "Test-errors two different values (~a and ~a) before and after compilation.\n"
+                             val val0))
+        #f)))
+
+(define (test-non-func-app compile-all prog)
+  (define val "run-time error: application of a non-procedure")
   (define compiled (compile-all prog))
   (define val0 (eval-llvm compiled))
   (if (equal? val val0)
