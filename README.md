@@ -145,3 +145,23 @@ In the desugar pass, place a halt statement if the first argument in function po
       (prim halt '"run-time error: application of a non-procedure")))
 ]
 ```
+##### Index Out Of Bounds Exception (for vectors)
+In desugar pass, place a halt statement if an attempt to access unallocated memory is made (this also required tweaks to the header.cpp functions ... *prim_vector_45set_33, prim_vector_45ref, prim_vector_45length, prim_make_45vector*)
+
+```racket
+[`(vector-set! ,v ,i ,val)
+     (define v+ (desugar-aux v))
+     (define i+ (desugar-aux i))
+     (define val+ (desugar-aux val))
+     `(if (prim and (prim < ,i+ (prim vector-length ,v+)) (prim >= ,i+ '0))
+          (prim vector-set! ,v+ ,i+ ,val+)
+          (prim halt '"run-time error: index out of bounds exception"))
+     ]
+    [`(vector-ref ,v ,i)
+     (define v+ (desugar-aux v))
+     (define i+ (desugar-aux i))
+     `(if (prim and (prim < ,i+ (prim vector-length ,v+)) (prim >= ,i+ '0))
+          (prim vector-ref ,v+ ,i+)
+          (prim halt '"run-time error: index out of bounds exception"))
+     ]
+```
