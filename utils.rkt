@@ -29,7 +29,8 @@
          test-compile-all
          test-zero-division
          test-uninit-var
-         test-non-func-app)
+         test-non-func-app
+         test-index-out-of-bound)
 
 
 (define project-path (current-directory))
@@ -664,10 +665,10 @@
         #f)))
 
 
-(define (test-compile-all compile-all prog)
-  (define val (eval-top-level prog)) 
+(define (test-compile-all compile-all prog) 
   (define compiled (compile-all prog))
   (define val0 (eval-llvm compiled))
+  (define val (eval-top-level prog))
   (if (equal? val val0)
       #t
       (begin
@@ -699,6 +700,17 @@
 
 (define (test-non-func-app compile-all prog)
   (define val "run-time error: application of a non-procedure")
+  (define compiled (compile-all prog))
+  (define val0 (eval-llvm compiled))
+  (if (equal? val val0)
+      #t
+      (begin
+        (display (format "Test-errors two different values (~a and ~a) before and after compilation.\n"
+                             val val0))
+        #f)))
+
+(define (test-index-out-of-bound compile-all prog)
+  (define val "run-time error: index out of bounds exception")
   (define compiled (compile-all prog))
   (define val0 (eval-llvm compiled))
   (if (equal? val val0)

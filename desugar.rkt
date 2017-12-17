@@ -208,6 +208,22 @@
      `(apply ,(desugar-aux e1) ,(desugar-aux e2))
      ]
 
+    [`(vector-set! ,v ,i ,val)
+     (define v+ (desugar-aux v))
+     (define i+ (desugar-aux i))
+     (define val+ (desugar-aux val))
+     `(if (prim and (prim < ,i+ (prim vector-length ,v+)) (prim >= ,i+ '0))
+          (prim vector-set! ,v+ ,i+ ,val+)
+          (prim halt '"run-time error: index out of bounds exception"))
+     ]
+    [`(vector-ref ,v ,i)
+     (define v+ (desugar-aux v))
+     (define i+ (desugar-aux i))
+     `(if (prim and (prim < ,i+ (prim vector-length ,v+)) (prim >= ,i+ '0))
+          (prim vector-ref ,v+ ,i+)
+          (prim halt '"run-time error: index out of bounds exception"))
+     ]
+    
     
     [`(promise? ,x)
      (desugar-aux `(if (and (not (null? ,x)) (list? ,x) (eq? (car ,x) 'promise-tag)) (quote #t) (quote #f)))

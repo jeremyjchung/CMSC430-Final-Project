@@ -338,21 +338,29 @@ u64 applyprim_vector(u64 lst)
     return ENCODE_OTHER(mem);
 }
 
-
-
 u64 prim_make_45vector(u64 lenv, u64 iv)
 {
     ASSERT_TAG(lenv, INT_TAG, "first argument to make-vector must be an integer")
 
     const u64 l = DECODE_INT(lenv);
-    u64* vec = (u64*)alloc(1 + (l * sizeof(u64)));
+    u64* vec = (u64*)alloc(2 + (l * sizeof(u64)));
     vec[0] = VECTOR_OTHERTAG;
-    for (u64 i = 1; i <= l; ++i)
+    vec[1] = lenv;
+    for (u64 i = 2; i <= l + 1; ++i)
         vec[i] = iv;
     return ENCODE_OTHER(vec);
 }
 GEN_EXPECT2ARGLIST(applyprim_make_45vector, prim_make_45vector)
 
+u64 prim_vector_45length(u64 v)
+{
+  ASSERT_TAG(v, OTHER_TAG, "first argument to vector-ref must be a vector")
+
+  if ((((u64*)DECODE_OTHER(v))[0]&7) != VECTOR_OTHERTAG)
+      fatal_err("vector-ref not given a properly formed vector");
+
+  return ((u64*)DECODE_OTHER(v))[1];
+}
 
 u64 prim_vector_45ref(u64 v, u64 i)
 {
@@ -362,21 +370,21 @@ u64 prim_vector_45ref(u64 v, u64 i)
     if ((((u64*)DECODE_OTHER(v))[0]&7) != VECTOR_OTHERTAG)
         fatal_err("vector-ref not given a properly formed vector");
 
-    return ((u64*)DECODE_OTHER(v))[1+(DECODE_INT(i))];
+    return ((u64*)DECODE_OTHER(v))[2+(DECODE_INT(i))];
 }
 GEN_EXPECT2ARGLIST(applyprim_vector_45ref, prim_vector_45ref)
 
 
 u64 prim_vector_45set_33(u64 a, u64 i, u64 v)
 {
-    ASSERT_TAG(i, INT_TAG, "second argument to vector-ref must be an integer")
-    ASSERT_TAG(a, OTHER_TAG, "first argument to vector-ref must be an integer")
+    ASSERT_TAG(i, INT_TAG, "second argument to vector-set must be an integer")
+    ASSERT_TAG(a, OTHER_TAG, "first argument to vector-set must be an integer")
 
     if ((((u64*)DECODE_OTHER(a))[0]&7) != VECTOR_OTHERTAG)
         fatal_err("vector-ref not given a properly formed vector");
 
 
-    ((u64*)(DECODE_OTHER(a)))[1+DECODE_INT(i)] = v;
+    ((u64*)(DECODE_OTHER(a)))[2+DECODE_INT(i)] = v;
 
     return V_VOID;
 }
@@ -643,6 +651,18 @@ u64 prim_not(u64 a)
 }
 GEN_EXPECT1ARGLIST(applyprim_not, prim_not)
 
+u64 prim_and(u64 a, u64 b)
+{
+  if (a == V_FALSE) {
+    return V_FALSE;
+  }
+  else if (b == V_FALSE) {
+    return V_FALSE;
+  }
+  else {
+    return V_TRUE;
+  }
+}
 
 
 }

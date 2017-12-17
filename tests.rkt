@@ -26,6 +26,11 @@
             (define t0 (test-non-func-app compile-all exp))
             t0))
 
+(define ((make-test-index-out-of-bound path) exp ext)
+        (lambda ()
+            (define t0 (test-index-out-of-bound compile-all exp))
+            t0))
+
 (define (tests-list dir)
   (map
    (lambda (path)
@@ -70,11 +75,20 @@
       (with-input-from-file p read-begin #:mode 'text)
       (last (string-split (path->string p) ".")))))
 
+(define ((path->test-index-out-of-bound type) p)
+  (define filename (last (string-split (path->string p) "/")))
+  `(,(string-append (last (string-split (string-join (drop-right (string-split (path->string p) ".") 1) ".") "/")))
+    ,type
+    ,((make-test-index-out-of-bound p)
+      (with-input-from-file p read-begin #:mode 'text)
+      (last (string-split (path->string p) ".")))))
+
 (define tests
   `(,@(map (path->test 'public) (tests-list "public"))
     ,@(map (path->test-zero 'zero-division) (tests-list "zero-division"))
     ,@(map (path->test-uninit-vars 'uninit-vars) (tests-list "uninit-vars"))
-    ,@(map (path->test-non-func 'non-func-app) (tests-list "non-func-app"))))
+    ,@(map (path->test-non-func 'non-func-app) (tests-list "non-func-app"))
+    ,@(map (path->test-index-out-of-bound 'index-out-of-bounds) (tests-list "index-out-of-bounds"))))
 
 (define (run-test/internal is-repl . args)
   ;; Run all tests, a specific test, or print the available tests
