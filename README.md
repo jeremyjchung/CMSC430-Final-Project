@@ -1,6 +1,5 @@
-# CMSC430-Final-Wahooo
-Final project for CMSC430 (compilers)
-Jeremy Chung - I did not cheat
+# CMSC430 Final Project
+*I, Jeremy Chung, pledge on my honor that I have not given or received any unauthorized assistance on this examination*
 
 This final project is a compilation of the previous projects we did this semester. The compiler.rkt file takes in a program and converts it in a series of steps to a final intermediate representation that can be compiled by Clang. 
 
@@ -50,6 +49,12 @@ Returns the second element of the pair p
 (a: any/c, d: any/c) 
 ```
 Returns a pair where a is the first element and d is the second element
+
+```racket
+(append lst ...) -> lst?
+(lst: list?)
+```
+Returns a list that is the result of appending n lists together
 
 ```racket
 (number? v) -> boolean? 
