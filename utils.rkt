@@ -30,7 +30,8 @@
          test-zero-division
          test-uninit-var
          test-non-func-app
-         test-index-out-of-bound)
+         test-index-out-of-bound
+         test-too-few-args)
 
 
 (define project-path (current-directory))
@@ -711,6 +712,17 @@
 
 (define (test-index-out-of-bound compile-all prog)
   (define val "run-time error: index out of bounds exception")
+  (define compiled (compile-all prog))
+  (define val0 (eval-llvm compiled))
+  (if (equal? val val0)
+      #t
+      (begin
+        (display (format "Test-errors two different values (~a and ~a) before and after compilation.\n"
+                             val val0))
+        #f)))
+
+(define (test-too-few-args compile-all prog)
+  (define val "run-time error: function is provided too few arguments")
   (define compiled (compile-all prog))
   (define val0 (eval-llvm compiled))
   (if (equal? val val0)

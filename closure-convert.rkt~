@@ -7,20 +7,11 @@
 (provide closure-convert
          proc->llvm)
 
+
+
 ; Pass that removes lambdas and datums as atomic and forces them to be let-bound
 ;   ...also performs a few small optimizations
 (define (simplify-ae e)
-  (define (improper-args? e)
-    (match e
-      ['() #f]
-      [(cons a b) (improper-args? b)]
-      [a #t]))
-  (define (args-req e n)
-    (match e
-      ['() n]
-      [(cons a b) (args-req b (+ n 1))]
-      [a n]))
-  
   (define (wrap-aes aes wrap)
     (match-define (cons xs wrap+)
                   (foldr (lambda (ae xs+wrap)
@@ -42,8 +33,6 @@
     (wrap+ xs))
   (match e
          [`(let ([,x (lambda ,xs ,elam)]) ,e0)
-          (define req-args (args-req xs 0))
-          (define opt-args (improper-args? xs))
           `(let ([,x (lambda ,xs ,(simplify-ae elam))]) ,(simplify-ae e0))]
 
          [`(let ([,x ',dat]) ,e0)
@@ -67,8 +56,7 @@
           (wrap-aes (list ae0 ae1) (lambda (xs) `(apply ,@xs)))]
          
          [`(,aes ...)
-          (wrap-aes aes (lambda (xs) xs))
-          ]))
+          (wrap-aes aes (lambda (xs) xs))]))
 
 
 ; Helper to remove vararg lambdas/callsites
@@ -86,21 +74,12 @@
           (define gx (gensym 'rvp))
           (define gx+e
             (foldr (lambda (x gx+e)
-                     (define halt (gensym 'halt))
-                     (define str (gensym 'str))
                      (define gx (gensym 'rvp))
-                     (define b (gensym 'b))
                      (cons gx
-                           `(let ([,b (prim null? ,gx)])
-                              (if ,b
-                                  (let ([,str '"run-time error: function is provided too few arguments"])
-                                    (let ([,halt (prim halt ,str)])
-                                      (,halt ,halt)))
-                                  (let ([,x (prim car ,gx)])
-                                    (let ([,(car gx+e) (prim cdr ,gx)])
-                                      ,(cdr gx+e)))
-                                  ))))
-                     (cons (gensym 'na) (remove-varargs body))
+                           `(let ([,x (prim car ,gx)])
+                              (let ([,(car gx+e) (prim cdr ,gx)])
+                                ,(cdr gx+e)))))
+                   (cons (gensym 'na) (remove-varargs body))
                    xs))
           `(let ([,x (lambda (,(car gx+e)) ,(cdr gx+e))])
              ,(remove-varargs e0))]

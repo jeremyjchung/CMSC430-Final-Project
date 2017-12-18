@@ -31,6 +31,11 @@
             (define t0 (test-index-out-of-bound compile-all exp))
             t0))
 
+(define ((make-test-too-few-args path) exp ext)
+        (lambda ()
+            (define t0 (test-too-few-args compile-all exp))
+            t0))
+
 (define (tests-list dir)
   (map
    (lambda (path)
@@ -83,12 +88,21 @@
       (with-input-from-file p read-begin #:mode 'text)
       (last (string-split (path->string p) ".")))))
 
+(define ((path->test-too-few-args type) p)
+  (define filename (last (string-split (path->string p) "/")))
+  `(,(string-append (last (string-split (string-join (drop-right (string-split (path->string p) ".") 1) ".") "/")))
+    ,type
+    ,((make-test-too-few-args p)
+      (with-input-from-file p read-begin #:mode 'text)
+      (last (string-split (path->string p) ".")))))
+
 (define tests
   `(,@(map (path->test 'public) (tests-list "public"))
     ,@(map (path->test-zero 'zero-division) (tests-list "zero-division"))
     ,@(map (path->test-uninit-vars 'uninit-vars) (tests-list "uninit-vars"))
     ,@(map (path->test-non-func 'non-func-app) (tests-list "non-func-app"))
-    ,@(map (path->test-index-out-of-bound 'index-out-of-bounds) (tests-list "index-out-of-bounds"))))
+    ,@(map (path->test-index-out-of-bound 'index-out-of-bounds) (tests-list "index-out-of-bounds"))
+    ,@(map (path->test-too-few-args 'too-few-args) (tests-list "too-few-args"))))
 
 (define (run-test/internal is-repl . args)
   ;; Run all tests, a specific test, or print the available tests
