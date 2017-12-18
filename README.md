@@ -108,6 +108,8 @@ Returns #t if e evaluates to #f, #f otherwise
 
 ### Fixed Runtime Errors
 
+The following runtime errors each have their own testing folder (ex. tests/index-out-of-bounds). Each of these runtime errors will result in the program evaluating and returning an error message. The testing suite for these runtime errors checks whether the proper error message is returned for each corresponding test.
+
 ##### Division by Zero
 In top-level pass, insert an if statement into the output desugar for the following two cases
 
@@ -165,3 +167,39 @@ In desugar pass, place a halt statement if an attempt to access unallocated memo
           (prim halt '"run-time error: index out of bounds exception"))
      ]
 ```
+
+##### Function is provided too few arguments
+In the closure convert remove-varargs phase, check whether the number of paramters being passed to a function satisfies the required number of arguments
+
+```racket
+[`(let ([,x (lambda (,xs ...) ,body)]) ,e0)
+  ; turns (xs ...) into x and immediately into (x)
+  ; by adding the needed car/cdr calls and let bindings
+  (define gx (gensym 'rvp))
+  (define gx+e
+    (foldr (lambda (x gx+e)
+      (define halt (gensym 'halt))
+      (define str (gensym 'str))
+      (define gx (gensym 'rvp))
+      (define b (gensym 'b))
+      (cons gx
+        `(let ([,b (prim null? ,gx)])
+          (if ,b
+              (let ([,str '"run-time error: function is provided too few arguments"])
+                (let ([,halt (prim halt ,str)])
+                  (,halt ,halt)))
+              (let ([,x (prim car ,gx)])
+                (let ([,(car gx+e) (prim cdr ,gx)])
+                  ,(cdr gx+e)))
+              ))))
+      (cons (gensym 'na) (remove-varargs body))
+    xs))
+  `(let ([,x (lambda (,(car gx+e)) ,(cdr gx+e))])
+    ,(remove-varargs e0))]
+```
+
+##### Other Runtime Errors
+
+*Function with too many values in argument position* <br/>
+*Memory limit exceeded (stackoverflow)* <br/>
+*Infinite loop*
