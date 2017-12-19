@@ -448,28 +448,19 @@ u64 prim_hash()
 
 u64 prim_hash_45ref(u64 h, u64 k)
 {
+  ASSERT_TAG(h, OTHER_TAG, "first argument to hash-ref must be a hash")
+
   const hamt<key,value>* hmap = (hamt<key, value>*)DECODE_OTHER(h);
   const key* const t = new ((key*)malloc(sizeof(key))) key(k);
   const value* const v = hmap->get(t);
-
-  /*if (((v->v)&7ULL) == CLO_TAG)
-    return DECODE_CLO(v->v);
-  if (((v->v)&7ULL) == CONS_TAG)
-    return DECODE_CONS(v->v);
-  if (((v->v)&7ULL) == INT_TAG)
-    return DECODE_INT(v->v);
-  if (((v->v)&7ULL) == STR_TAG)
-    return DECODE_STR(v->v);
-  if (((v->v)&7ULL) == SYM_TAG)
-    return DECODE_SYM(v->v);
-  if (((v->v)&7ULL) == OTHER_TAG)
-    return DECODE_OTHER(v->v);*/
 
   return v->v;
 }
 
 u64 prim_hash_45set(u64 h, u64 k, u64 v)
 {
+  ASSERT_TAG(h, OTHER_TAG, "first argument to hash-set must be a hash")
+
   const hamt<key,value>* hmap = (hamt<key, value>*)DECODE_OTHER(h);
   const key* const tk = new ((key*)malloc(sizeof(key))) key(k);
   const value* const tv = new ((value*)malloc(sizeof(value))) value(v);
@@ -478,9 +469,26 @@ u64 prim_hash_45set(u64 h, u64 k, u64 v)
 
 u64 prim_hash_45remove(u64 h, u64 k)
 {
+  ASSERT_TAG(h, OTHER_TAG, "first argument to hash-remove must be a hash")
+
   const hamt<key,value>* hmap = (hamt<key, value>*)DECODE_OTHER(h);
   const key* const t = new ((key*)malloc(sizeof(key))) key(k);
   return ENCODE_OTHER(hmap->remove(t));
+}
+
+u64 prim_hash_45_has45_key64(u64 h, u64 k)
+{
+  ASSERT_TAG(h, OTHER_TAG, "first argument to hash-has-key? must be a hash")
+
+  const hamt<key,value>* hmap = (hamt<key, value>*)DECODE_OTHER(h);
+  const key* const t = new ((key*)malloc(sizeof(key))) key(k);
+  const value* const v = hmap->get(t);
+
+  if (v == 0) {
+    return V_FALSE;
+  }
+
+  return V_TRUE;
 }
 
 ///// eq?, eqv?, equal?

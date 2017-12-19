@@ -1,0 +1,5 @@
+(define a (hash))
+(define c (hash))
+(define d (hash-set c 1 10))
+(define b (hash-set a 1 d))
+(hash-ref (hash-ref b 1) 1)

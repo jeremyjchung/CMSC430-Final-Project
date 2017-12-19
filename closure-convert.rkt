@@ -275,7 +275,7 @@
          [(? string?)
           (define str (~a (gensym '@.str.)))
           (define length (+ (string-length dat) 1))
-          (define glob (~a str " = private unnamed_addr constant [" length " x i8] c\"" dat "\\00\", align 8"))
+          (define glob (~a str " = global [" length " x i8] c\"" dat "\\00\", align 8"))
           (set! const-lst (cons glob const-lst))
           (~a reg " = call i64 @const_init_string(i8* getelementptr inbounds ([" length " x i8], [" length " x i8]* " str ", i32 0, i32 0))\n"
               (llvm-lst e0 (hash-set env x reg)))

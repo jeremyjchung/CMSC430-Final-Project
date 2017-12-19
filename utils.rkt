@@ -53,7 +53,7 @@
                      length list-tail drop take member memv map append foldl foldr
                      vector? vector make-vector vector-ref vector-set! vector-length
                      set set->list list->set set-add set-union set-count set-first set-rest set-remove
-                     hash hash-ref hash-set hash-count hash-keys hash-has-key? hash?
+                     hash hash-ref hash-remove hash-set hash-count hash-keys hash-has-key? hash?
                      list? void? promise? procedure? number? integer?
                      error void print display write exit halt
                      eq? eqv? equal? not))
@@ -615,7 +615,7 @@
         (set! recent-header #t)
         ;(system (string-append clang++-path " header.cpp " " -I " gc-include-path " -S -emit-llvm -o header.ll"))
         (system (string-append clang++-path " header.cpp " " -S -emit-llvm -o header.ll --std=c++11 -pthread")))
-  (define header-str (read-string 299999 (open-input-file "header.ll" #:mode 'text)))
+  (define header-str (read-string 999999 (open-input-file "header.ll" #:mode 'text)))
   (define llvm (string-append header-str "\n\n;;;;;;\n\n" llvm-str))
   (display llvm (open-output-file "combined.ll" #:exists 'replace))
   ;(system (string-append clang++-path " combined.ll " libgc-path " -I " gc-include-path " -lpthread -o bin"))
