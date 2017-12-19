@@ -3,6 +3,7 @@
 //#include "gc.h"    // Add back in and change tags if we want to use GC
 #include "stdio.h"
 #include "stdlib.h"
+#include "hamt.h"
 
 
 #define CLO_TAG 0
@@ -101,6 +102,7 @@ typedef unsigned long long u64;
 typedef signed long long s64;
 typedef unsigned long u32;
 typedef signed long s32;
+typedef uint8_t u8;
 
 
 
@@ -393,16 +395,93 @@ GEN_EXPECT3ARGLIST(applyprim_vector_45set_33, prim_vector_45set_33)
 
 ///// void, ...
 
-
 u64 prim_void()
 {
     return V_VOID;
 }
 
+/// hamt hashmap primitives ...
 
+class key
+{
+public:
+    const u64 x;
 
+    key(u64 x)
+        : x(x)
+    {}
 
+    u64 hash() const
+    {
+        const u8* data = reinterpret_cast<const u8*>(this);
+        u64 h = 0xcbf29ce484222325;
+        for (u32 i = 0; i < sizeof(key); ++i && ++data)
+        {
+            h = h ^ *data;
+            h = h * 0x100000001b3;
+        }
 
+        return h;
+    }
+
+    bool operator==(const key& t) const
+    {
+        return t.x == this->x;
+    }
+};
+
+class value
+{
+public:
+  const u64 v;
+
+  value(u64 v)
+      : v(v)
+  {}
+};
+
+u64 prim_hash()
+{
+  const hamt<key, value>* h = new ((hamt<key,value>*)malloc(sizeof(hamt<key,value>))) hamt<key,value>();
+  return ENCODE_OTHER(h);
+}
+
+u64 prim_hash_45ref(u64 h, u64 k)
+{
+  const hamt<key,value>* hmap = (hamt<key, value>*)DECODE_OTHER(h);
+  const key* const t = new ((key*)malloc(sizeof(key))) key(k);
+  const value* const v = hmap->get(t);
+
+  /*if (((v->v)&7ULL) == CLO_TAG)
+    return DECODE_CLO(v->v);
+  if (((v->v)&7ULL) == CONS_TAG)
+    return DECODE_CONS(v->v);
+  if (((v->v)&7ULL) == INT_TAG)
+    return DECODE_INT(v->v);
+  if (((v->v)&7ULL) == STR_TAG)
+    return DECODE_STR(v->v);
+  if (((v->v)&7ULL) == SYM_TAG)
+    return DECODE_SYM(v->v);
+  if (((v->v)&7ULL) == OTHER_TAG)
+    return DECODE_OTHER(v->v);*/
+
+  return v->v;
+}
+
+u64 prim_hash_45set(u64 h, u64 k, u64 v)
+{
+  const hamt<key,value>* hmap = (hamt<key, value>*)DECODE_OTHER(h);
+  const key* const tk = new ((key*)malloc(sizeof(key))) key(k);
+  const value* const tv = new ((value*)malloc(sizeof(value))) value(v);
+  return ENCODE_OTHER(hmap->insert(tk,tv));
+}
+
+u64 prim_hash_45remove(u64 h, u64 k)
+{
+  const hamt<key,value>* hmap = (hamt<key, value>*)DECODE_OTHER(h);
+  const key* const t = new ((key*)malloc(sizeof(key))) key(k);
+  return ENCODE_OTHER(hmap->remove(t));
+}
 
 ///// eq?, eqv?, equal?
 
