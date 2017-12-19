@@ -203,3 +203,130 @@ In the closure convert remove-varargs phase, check whether the number of paramte
 *Function with too many values in argument position* <br/>
 *Memory limit exceeded (stackoverflow)* <br/>
 *Infinite loop*
+
+## Part III
+
+I implemented a hash-map(hamt implementation) with the following supported operations
+
+```racket
+(hash)
+```
+Returns an immutable hash-map object
+
+```racket
+(hash-ref h k)
+(h: hash?, k: any/c)
+```
+Returns the object associated with the given key k in the hashmap h (assumes that k is in h)
+
+```racket
+(hash-set h k v)
+(h: hash?, k: any/c, v:any/c)
+```
+Returns an immutable hashmap object that is the result of adding the key-value pair into hashmap h
+
+```racket
+(hash-remove h k)
+(h: hash?, k: any/c)
+```
+Returns an immutable hashmap object that is the result of removing k from hashmap h<br/><br/>
+
+```c++
+class key
+{
+public:
+    const u64 x;
+
+    key(u64 x)
+        : x(x)
+    {}
+
+    u64 hash() const
+    {
+        const u8* data = reinterpret_cast<const u8*>(this);
+        u64 h = 0xcbf29ce484222325;
+        for (u32 i = 0; i < sizeof(key); ++i && ++data)
+        {
+            h = h ^ *data;
+            h = h * 0x100000001b3;
+        }
+
+        return h;
+    }
+
+    bool operator==(const key& t) const
+    {
+        return t.x == this->x;
+    }
+};
+
+class value
+{
+public:
+  const u64 v;
+
+  value(u64 v)
+      : v(v)
+  {}
+};
+
+u64 prim_hash()
+{
+  const hamt<key, value>* h = new ((hamt<key,value>*)malloc(sizeof(hamt<key,value>))) hamt<key,value>();
+  return ENCODE_OTHER(h);
+}
+
+u64 prim_hash_45ref(u64 h, u64 k)
+{
+  ASSERT_TAG(h, OTHER_TAG, "first argument to hash-ref must be a hash")
+
+  const hamt<key,value>* hmap = (hamt<key, value>*)DECODE_OTHER(h);
+  const key* const t = new ((key*)malloc(sizeof(key))) key(k);
+  const value* const v = hmap->get(t);
+
+  return v->v;
+}
+
+u64 prim_hash_45set(u64 h, u64 k, u64 v)
+{
+  ASSERT_TAG(h, OTHER_TAG, "first argument to hash-set must be a hash")
+
+  const hamt<key,value>* hmap = (hamt<key, value>*)DECODE_OTHER(h);
+  const key* const tk = new ((key*)malloc(sizeof(key))) key(k);
+  const value* const tv = new ((value*)malloc(sizeof(value))) value(v);
+  return ENCODE_OTHER(hmap->insert(tk,tv));
+}
+
+u64 prim_hash_45remove(u64 h, u64 k)
+{
+  ASSERT_TAG(h, OTHER_TAG, "first argument to hash-remove must be a hash")
+
+  const hamt<key,value>* hmap = (hamt<key, value>*)DECODE_OTHER(h);
+  const key* const t = new ((key*)malloc(sizeof(key))) key(k);
+  return ENCODE_OTHER(hmap->remove(t));
+}
+
+u64 prim_hash_45_has45_key64(u64 h, u64 k)
+{
+  ASSERT_TAG(h, OTHER_TAG, "first argument to hash-has-key? must be a hash")
+
+  const hamt<key,value>* hmap = (hamt<key, value>*)DECODE_OTHER(h);
+  const key* const t = new ((key*)malloc(sizeof(key))) key(k);
+  const value* const v = hmap->get(t);
+
+  if (v == 0) {
+    return V_FALSE;
+  }
+
+  return V_TRUE;
+}
+```
+Code in header.cpp that was written to implement this feature
+
+## Part IV
+
+Not implemented ...
+
+## Works Cited
+
+Thomas Gilray, Kristopher Micinski - hamt.h, compat.h 
