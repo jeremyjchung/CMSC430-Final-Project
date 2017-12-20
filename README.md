@@ -327,6 +327,10 @@ Code in header.cpp that was written to implement this feature
 
 Not implemented ...
 
+## Example Test Run
+
+![Alt text](./run-test.png?raw=true "Example Test Run")
+
 ## Works Cited
 
 Thomas Gilray, Kristopher Micinski - hamt.h, compat.h 
